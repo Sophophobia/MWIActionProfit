@@ -5,7 +5,7 @@
 // @homepageURL  https://github.com/Sophophobia/MWIActionProfit
 // @updateURL    https://raw.githubusercontent.com/Sophophobia/MWIActionProfit/main/mwi-action-estimate.user.js
 // @downloadURL  https://raw.githubusercontent.com/Sophophobia/MWIActionProfit/main/mwi-action-estimate.user.js
-// @version      0.2.11
+// @version      0.2.12
 // @description  在行动详情面板里显示做完后技能等级、产出总价和每小时入账；另有全部行动的每小时收益排行
 // @match        https://www.milkywayidle.com/*
 // @match        https://www.milkywayidlecn.com/*
@@ -345,6 +345,7 @@
                 if (Object.keys(map).length > 50) {
                     zhNames = map;
                     LOG('读到游戏中文名', Object.keys(map).length, '个，来自', src);
+                    setTimeout(() => { try { renderRank(); } catch (e) { /* 忽略 */ } }, 0);
                     try { localStorage.setItem(ZH_KEY, JSON.stringify({ src, map })); } catch (e) { /* 忽略 */ }
                     break;
                 }
@@ -959,10 +960,10 @@
         if (cats.length > 1) {
             if (rankPref.cat && !cats.includes(rankPref.cat)) rankPref.cat = '';
             const html = `<option value="">${t.rankAllCats}</option>` + cats.map(c => `<option value="${esc(c)}">${esc(catLabel(cd, c))}</option>`).join('');
-            if (catSel.dataset.skill !== rankPref.skill || catSel.dataset.lang !== getLang()) {
+            // 内容变了（换技能、换语言、中文名刚加载完）就重画
+            if (catSel.dataset.html !== html) {
                 catSel.innerHTML = html;
-                catSel.dataset.skill = rankPref.skill;
-                catSel.dataset.lang = getLang();
+                catSel.dataset.html = html;
             }
             catSel.value = rankPref.cat;
             catSel.style.display = '';
